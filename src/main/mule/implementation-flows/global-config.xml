@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+<http:listener-config name="hospital-database-management-system-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="${httplis.port}" />
+    </http:listener-config>
+    <apikit:config name="hospital-database-management-system-config" api="hospital-database-management-system.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="a980bae4-cabb-406e-a951-985bb679f226" basePath="${http.api}" >
+		<http:request-connection host="${httpreq.host}" port="${httpreq.port}" />
+	</http:request-config>
+	<configuration doc:name="Configuration" doc:id="29430bf3-818f-4d35-b9fd-5a3908b16344" defaultErrorHandler-ref="Global-Error-Handler" />
+	<configuration-properties doc:name="Configuration properties" doc:id="2e0f0a60-3e35-4421-9ba0-ab828c5d1cbb" file="properties\dev.properties" />
+
+</mule>

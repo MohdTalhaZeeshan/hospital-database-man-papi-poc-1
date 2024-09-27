@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    
+    
+    <flow name="hospital-database-management-system-main">
+        <http:listener config-ref="hospital-database-management-system-httpListenerConfig" path="${http.lispath}">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <set-variable value='#[correlationId replace "-" with ""]' doc:name="TrackingId" doc:id="7af9df42-cded-4636-b2e2-02abdae3da69" variableName="correlationid"/>
+		<apikit:router config-ref="hospital-database-management-system-config" />
+        <error-handler ref="Global-Error-Handler">
+           
+        </error-handler>
+    </flow>
+    <flow name="hospital-database-management-system-console">
+        <http:listener config-ref="hospital-database-management-system-httpListenerConfig" path="${http.console}">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="hospital-database-management-system-config" />
+		<error-handler ref="Global-Error-Handler" />
+    </flow>
+    <flow name="put:\patients\(id):application\json:hospital-database-management-system-config">
+		<logger level="INFO" doc:name="Start Logger" doc:id="9ac3d674-e26d-4fe4-87bb-731cd6a943fc" message='#["Update Patient record by ID flow started in exp layer :: " ++ vars.correlationid]'/>
+		<flow-ref doc:name="This Flow is Refering to Update Patient Record By ID flow which is present in hospital-database-management-impl-api.xml." doc:id="0686d94b-1eb6-4c65-b56f-b240e2566f75" name="Update-Patient-Record-By-ID"/>
+		
+		<logger level="INFO" doc:name="End Logger" doc:id="542a94ba-4efa-4451-9e46-2e7e86a60658" message='#["Update Patient record by ID flow ended in exp layer :: " ++ vars.correlationid]'/>
+    </flow>
+    <flow name="put:\updatedoc:application\json:hospital-database-management-system-config">
+		<logger level="INFO" doc:name="Start Logger" doc:id="7118a8e3-2ef7-448d-bf83-3ef3f08a5fa5" message='#["Update Doctor record flow started in exp layer ::" ++ vars.correlationid]'/>
+		<flow-ref doc:name="This Flow is Refering to Update Doctor Record By StaffID which is present in hospital-database-management-impl-api.xml." doc:id="93722871-546f-4344-af34-bb605776f6be" name="Update-Doctor-Record-By-StaffID"/>
+		
+		<logger level="INFO" doc:name="End Logger" doc:id="d6610483-5985-48ec-9594-a95e0630bbdd" message='#["Update Doctor record flow ended in exp layer ::" ++ vars.correlationid]'/>
+    </flow>
+    <flow name="delete:\doctors\(id):hospital-database-management-system-config">
+		<logger level="INFO" doc:name="Start Logger" doc:id="5a79d388-b340-48ef-9e31-cbe235de4f8b" message='#["Delete Doctor record by StaffID flow started in exp layer ::" ++ vars.correlationid]'/>
+		<flow-ref doc:name="This Flow is Refering to Delete Doctor By StaffID which is present in hospital-database-management-impl-api.xml." doc:id="61b3c3bc-1528-463a-a912-f91a641583dc" name="Delete-Doctor-By-StaffID"/>
+		
+		<logger level="INFO" doc:name="End Logger" doc:id="67240ca9-f639-46c1-bc47-3159367474e0" message='#["Delete Doctor record by StaffID flow ended in exp layer ::" ++ vars.correlationid]'/>
+    </flow>
+	<flow name="delete:\patients\(id):hospital-database-management-system-config">
+		<logger level="WARN" doc:name="Start Logger" doc:id="3f9e9567-66af-4f86-9ae8-b11ff35ef803" message='#["Delete patient record by ID flow started in exp layer ::" ++ vars.correlationid]'/>
+		<flow-ref doc:name="This Flow is Refering to Update Delete Patient By ID which is present in hospital-database-management-impl-api.xml." doc:id="3f07294d-920f-4e56-ada9-fc632ff3fd22" name="Delete-Patient-By-ID"/>
+		
+		<logger level="INFO" doc:name="End Logger" doc:id="0080151e-c60f-4b64-800e-8e11b01a79f9" message='#["Delete patient record by ID flow ended in exp layer ::" ++ vars.correlationid]'/>
+    </flow>
+    <flow name="get:\doctors:hospital-database-management-system-config">
+    <logger level="INFO" doc:name="Start Logger" doc:id="db335357-33b9-4893-8613-ad4365bbbf3f" message='#["Get All Doctor Records Flow started in exp layer ::" ++ vars.correlationid]'/>
+		<flow-ref doc:name="This Flow is Refering to Get All Doctor Records which is present in hospital-database-management-impl-api.xml." doc:id="148c4956-bbfb-4c24-911f-457b149f5725" name="Get-All-Doctor-Records"/>
+		
+		<logger level="INFO" doc:name="End Logger" doc:id="f88d0f68-b4d8-44e1-8051-a657d2128908" message='#["Get All Doctor Records Flow ended in exp layer ::" ++ vars.correlationid]'/>
+    </flow>
+    <flow name="get:\doctors\special\(specialty):hospital-database-management-system-config">
+		<logger level="INFO" doc:name="Start Logger" doc:id="413cf237-d889-4ef4-8287-bfce3443a8bb" message='#["Get Doctor Record By Specialty Flow started in exp layer ::" ++ vars.correlationid]'/>
+		<flow-ref doc:name="This Flow is Refering to Get Doctor By Specality which is present in hospital-database-management-impl-api.xml." doc:id="f522df5b-6213-4ce2-9011-27de37e97e1b" name="Get-Doctor-By-Specality"/>
+		
+		<logger level="INFO" doc:name="End Logger" doc:id="2cf9fad8-6642-4a01-88ee-bfa340c01adc" message='#["Get Doctor Record By Specialty Flow ended in exp layer ::" ++ vars.correlationid]'/>
+    </flow>
+    <flow name="get:\doctors\(id):hospital-database-management-system-config">
+		<logger level="INFO" doc:name="Start Logger" doc:id="205aa0f6-c6c7-4c8a-ad78-e6f65909e4d2" message='#["Get Doctor Record By StaffID Flow started in exp layer ::" ++ vars.correlationid]'/>
+		<flow-ref doc:name="This Flow is Refering to Get Doctor By StaffID  which is present in hospital-database-management-impl-api.xml." doc:id="36233a04-770c-4bed-a965-6a6f06c88365" name="Get-Doctor-By-StaffID"/>
+		
+		<logger level="INFO" doc:name="End Logger" doc:id="7d582d32-0e1c-4c40-bd32-9ccd03c27aad" message='#["Get Doctor Record By StaffID Flow ended in exp layer ::" ++ vars.correlationid]'/>
+    </flow>
+    <flow name="get:\patients:hospital-database-management-system-config">
+    <logger level="INFO" doc:name="Start Logger" doc:id="a4a65be7-7a71-4af4-9f7a-0622cee8c67f" message='#["Getting all patients records flow started in exp layer ::" ++ vars.correlationid]'/>
+		<flow-ref doc:name="This Flow is Refering to Update Get All Patient Records which is present in hospital-database-management-impl-api.xml." doc:id="f40908da-fb5b-4bfc-bffc-b07d8a93c291" name="Get-All-Patient-Records"/>
+		
+		<logger level="INFO" doc:name="End Logger" doc:id="57d8d88a-c4a3-4c06-86de-cfb9b2c17aa8" message='#["Getting all patients records flow ended in exp layer ::" ++ vars.correlationid]'/>
+    </flow>
+    <flow name="get:\patients\status\(status):hospital-database-management-system-config">
+		<logger level="INFO" doc:name="Start Logger" doc:id="90413239-9703-48f8-9362-f9f5f7b7184e" message='#["Getting  patient record by status flow started in exp layer ::" ++ vars.correlationid]'/>
+		<flow-ref doc:name="This Flow is Refering to Get Patient Record By Status which is present in hospital-database-management-impl-api.xml." doc:id="c77d99c9-f9ac-45bf-8883-1a7c3f4f2241" name="Get-Patient-Record-By-Status"/>
+		
+		<logger level="INFO" doc:name="End Logger" doc:id="9500f7fd-b88c-4db9-b118-6f3642f32749" message='#["Getting  patient record by status flow ended in exp layer ::" ++ vars.correlationid]'/>
+    </flow>
+    <flow name="get:\patients\(id):hospital-database-management-system-config">
+    <logger level="INFO" doc:name="Start Logger" doc:id="3f700b05-8c64-4794-ac67-42437b77cb79" message='#["Getting  patient record by ID flow started in exp layer ::" ++ vars.correlationid]'/>
+		<flow-ref doc:name="This Flow is Refering to Get Patient Record By ID which is present in hospital-database-management-impl-api.xml." doc:id="0a3b4959-728f-4684-9bdb-3bc971635b02" name="Get-Patient-Record-By-ID"/>
+		
+		<logger level="INFO" doc:name="End Logger" doc:id="3c96344c-8e51-43ae-8ca2-ba4e8a247be3" message='#["Getting  patient record by ID flow ended in exp layer ::" ++ vars.correlationid]'/>
+    </flow>
+    <flow name="post:\doctors:application\json:hospital-database-management-system-config">
+		<logger level="INFO" doc:name="Start Logger" doc:id="2df431ea-b810-43a8-9e77-ea0c9d81c6bf" message='#["Validating  Doctor details  Object flow started in exp layer ::" ++ vars.correlationid]'/>
+		<flow-ref doc:name="This Flow is Refering to Validate-Doctor which is present in hospital-database-management-impl-api.xml." doc:id="45331608-4a29-4115-bf54-a76a644146bc" name="Validate-Doctor"/>
+		
+		<logger level="INFO" doc:name="End Logger" doc:id="5a724582-a98f-47f1-badd-e89e2abb1cbd" message='#["Validating  Doctor details  Object flow ended in exp layer ::" ++ vars.correlationid]'/>
+		
+    </flow>
+    <flow name="post:\patients:application\json:hospital-database-management-system-config">
+		<logger level="INFO" doc:name="Start Logger" doc:id="78e6a19f-eecc-4ae6-bab6-f32ad5c4cbc2" message='#["Validating  Patient details  Object flow started in exp layer ::" ++ vars.correlationid]'/>
+		<flow-ref doc:name="This Flow is Refering to Validate Patient which is present in hospital-database-management-impl-api.xml." doc:id="12d2a9b8-d6f1-4554-90c7-f73f8ac15a93" name="Validate-Patient"/>
+		
+		<logger level="INFO" doc:name="End Logger" doc:id="ce5662ba-391a-4e85-9313-0dff4ea099d5" message='#["Validating  Patient details  Object flow ended in exp layer ::" ++ vars.correlationid]'/>
+    </flow>
+</mule>

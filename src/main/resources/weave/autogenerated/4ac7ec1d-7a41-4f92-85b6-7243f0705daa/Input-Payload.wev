@@ -1,0 +1,12 @@
+%dw 2.0
+
+type auto_4ac7ec1d_7a41_4f92_85b6_7243f0705daa_Input_Payload = {
+  Specialty: String, 
+  OfficeHours: String, 
+  EmailID: String, 
+  StaffID: Number, 
+  Timestamp: String, 
+  Name: String, 
+  _?: Any
+} {"description": "Doctor details in the hospital system"}
+

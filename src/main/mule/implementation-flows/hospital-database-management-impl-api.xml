@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	
+	<sub-flow name="Get-All-Patient-Records" doc:id="18280ca1-f24c-43d0-81d9-3c8b57ebbb2e" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="afb73371-6500-411d-a74f-b327f902f042" message='#["Getting all patients records flow started in exp layer impl ::" ++ vars.correlationid]'/>
+		<http:request method="GET" doc:name="This Request Connector is used to call get:\pats\(id) present in hospital-manage-prcapi-config." doc:id="22563819-fbe8-466e-b062-82665c93136c" config-ref="HTTP_Request_configuration" path="${http.path1}" responseTimeout="300000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"correlationid" : vars.correlationid
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Converting payload into csv format and printing all the patients records in csv format." doc:id="4cfab2cd-67f8-42f7-96fc-d08944875a7f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="d5d920c5-e6a3-43fb-be04-fdd3fb03fb61" message='#["Getting all patients records flow ended in exp layer impl ::" ++ vars.correlationid]'/>
+	</sub-flow>
+	<sub-flow name="Get-Patient-Record-By-ID" doc:id="c5a40bc8-5c42-48ec-9dc6-0754ba3cb542" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="ded0ee07-ec7b-4c76-b801-4c3abec757e3" message='#["Getting  patient record by ID flow started in exp layer impl  ::" ++ vars.correlationid]'/>
+		<http:request method="GET" doc:name="This Request Connector is used to call get:\pats\(id) present in hospital-manage-prcapi-config." doc:id="1804ae5f-f99e-4a6f-9e18-d207fd7092a8" config-ref="HTTP_Request_configuration" path="${http.path2}" responseTimeout="300000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"correlationid" : vars.correlationid
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"id" : attributes.uriParams.id
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Converting the payload into json and printing patient record with the given ID." doc:id="23489cc4-6e48-4bf0-98dd-47fadaeee123" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="4292a297-ae20-4cc2-bd6d-738723830879" message='#["Getting  patient record by ID flow ended in exp layer impl  ::" ++ vars.correlationid]'/>
+	</sub-flow>
+	<sub-flow name="Get-Doctor-By-StaffID" doc:id="207c0305-48e4-4262-9255-775436cd56f7" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="de7024f7-9778-4f23-a615-8f10deec469a" message='#["Get Doctor Record By StaffID Flow started in exp layer impl  ::" ++ vars.correlationid]'/>
+		<http:request method="GET" doc:name="This Request Connector is used to call get:\docs\(id) present in hospital-manage-prcapi-config." doc:id="4801779b-c75b-46bf-a1f9-cb3b6ae83e8b" config-ref="HTTP_Request_configuration" path="${http.path3}" responseTimeout="300000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"correlationid" : vars.correlationid
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"id" : attributes.uriParams.id
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Converting payload into csv format and printing the doctor record with given StaffID." doc:id="c5494bae-4f30-420b-9b42-eb21297c5b04" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="e2c21f1d-8fcd-4acb-a30a-35f4a98fb891" message='#["Get Doctor Record By StaffID Flow ended  in exp layer impl ::" ++ vars.correlationid]'/>
+	</sub-flow>
+	<sub-flow name="Delete-Doctor-By-StaffID" doc:id="06eaac9c-27f5-4506-80b9-6fadc31907f0" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="0a5e4cbc-9b92-4ccd-9a0a-2df872a42b47" message='#["Delete Doctor record by StaffID flow started in exp layer impl ::" ++ vars.correlationid]'/>
+		<http:request method="DELETE" doc:name="This Request Connector is used to call delete:\docs\(id) present in hospital-manage-prcapi-config." doc:id="6913b631-7a1b-493e-9187-39317073ed59" config-ref="HTTP_Request_configuration" path="${http.path3}" responseTimeout="300000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"correlationid" : vars.correlationid
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"id" : attributes.uriParams.id
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Converting payload into json and printing a message as Doctor record deleted successfully." doc:id="c55bb69b-cdd2-49ec-bec4-00988ec87af8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message" : "Doctor record deleted Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="0cddbf02-2fa1-40c5-8178-f67b9d005f35" message='#["Delete Doctor record by StaffID flow ended in exp layer impl ::" ++ vars.correlationid]'/>
+	</sub-flow>
+	<sub-flow name="Get-Doctor-By-Specality" doc:id="dbd61b70-dbf0-4d2f-aaf2-dad930fe89e6" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="a94f19bc-bba2-4a61-bf15-b9c8d3b97e9b" message='#["Get Doctor Record By Specialty Flow started in exp layer impl ::" ++ vars.correlationid]'/>
+		<http:request method="GET" doc:name="This Request Connector is used to call get:\spec\(specialty) present in hospital-manage-prcapi-config." doc:id="afa10dd6-5a18-4031-b497-6f64e83e5236" config-ref="HTTP_Request_configuration" path="${http.path4}" responseTimeout="300000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"correlationid" : vars.correlationid
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"specialty" : attributes.uriParams.specialty
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Converting payload into json and printing the doctor records with the given specialty." doc:id="ef6652be-044e-4ed3-891f-576a1909a2f7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="60644e86-e157-470d-bf77-26a6c0c61bdf" message='#["Get Doctor Record By Specialty Flow ended in exp layer impl ::" ++ vars.correlationid]'/>
+	</sub-flow>
+	<sub-flow name="Get-Patient-Record-By-Status" doc:id="9d098951-4e6b-4fbc-80ec-09e72710c9dd" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="a210ea50-525c-4544-9e76-7735a61eabf8" message='#["Getting  patient record by status flow started in exp layer impl ::" ++ vars.correlationid]'/>
+		<http:request method="GET" doc:name="This Request Connector is used to call get:\pats\s1\(status) present in hospital-manage-prcapi-config." doc:id="a4458691-3007-4aa7-954d-8d896db5af88" config-ref="HTTP_Request_configuration" path="${http.path5}" responseTimeout="300000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"correlationid" : vars.correlationid
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"status" : attributes.uriParams.status
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Converting payload into json and printing the patient record with the given status." doc:id="6c52052e-3a86-47d4-b417-354cde804bf3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="cf20252b-a0f2-44a4-aee3-621a1f309ad7" message='#["Getting  patient record by status flow ended in exp layer impl ::" ++ vars.correlationid]'/>
+	</sub-flow>
+	<sub-flow name="Get-All-Doctor-Records" doc:id="b4875f77-170d-48e7-9e36-7207009423b7" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="33f8f73e-30e1-42c7-9b61-e264e63ad2f0" message='#["Get All Doctor Records Flow started in exp layer impl ::" ++ vars.correlationid]'/>
+		<http:request method="GET" doc:name="This Request Connector is used to call get:\doctors present in hospital-manage-prcapi-config." doc:id="4e727471-2bad-49ac-a50a-0bab8dc88463" config-ref="HTTP_Request_configuration" path="${http.path6}" responseTimeout="#[300000]">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"correlationid" : vars.correlationid
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Converting payload into json and printing all doctor records." doc:id="dec4a77d-7070-4c0b-82a4-36d1839ad4d5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="e5458544-d5e7-4a36-9a0a-5bc7b1a76290" message='#["Get All Doctor Records Flow ended in exp layer impl ::" ++ vars.correlationid]'/>
+	</sub-flow>
+	<sub-flow name="Validate-Doctor" doc:id="4b408bf3-487e-4c3d-a974-1578171fb678" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="2e97c89a-e341-406f-932d-a717568212fb" message='#["Validating  Doctor details  Object flow started  in exp layer impl ::" ++ vars.correlationid]'/>
+		<http:request method="POST" doc:name="This Request Connector is used to call post:\doctors present in hospital-manage-prcapi-config." doc:id="3122de0b-3955-4cbd-bf1f-f344a62ed57a" config-ref="HTTP_Request_configuration" path="${http.path6}" responseTimeout="300000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"correlationid" : vars.correlationid
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Converting payload into json format and inserting and updating the record accordingly." doc:id="7e57a0d1-dd12-4f98-b469-e3a4141fb096" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="ee366c82-80c2-43b3-87f0-08ac0ca3119f" message='#["Validating  Doctor details  Object flow ended in exp layer impl ::" ++ vars.correlationid]'/>
+	</sub-flow>
+	<sub-flow name="Update-Patient-Record-By-ID" doc:id="987b5188-7f8e-48bc-9132-fe8ff5710b8a" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="c17805f6-6caa-4fd6-bd8f-e51290afba3c" message='#["Update Patient record by ID flow started in exp layer impl :: " ++ vars.correlationid]'/>
+		<http:request method="PUT" doc:name="This Request Connector is used to call put:\pats\(id) present in hospital-manage-prcapi-config. " doc:id="f42cabf0-0b07-4b33-b451-e46e9a24997f" config-ref="HTTP_Request_configuration" path="${http.path2}" responseTimeout="300000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"correlationid" : vars.correlationid
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"id" : attributes.uriParams.id
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Converting payload into json and printing a message as Updated Patient Record Successfully." doc:id="ce1fbc76-d2b9-46eb-b93c-94d3e837a709" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message":"Updated Patient Record Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="fc606aac-9010-4249-90c8-1a69d534d41d" message='#["Update Patient record by ID flow ended in exp layer impl :: " ++ vars.correlationid]'/>
+	</sub-flow>
+	<sub-flow name="Update-Doctor-Record-By-StaffID" doc:id="4ac7ec1d-7a41-4f92-85b6-7243f0705daa" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="2634c3dc-1734-4bfe-ae95-2d799b8570ff" message='#["Update Doctor record flow started in exp layer impl ::" ++ vars.correlationid]'/>
+		<http:request method="PUT" doc:name="This Request Connector is used to call put:\updatedoctor present in hospital-manage-prcapi-config." doc:id="177fed98-2abc-4d84-8821-e92bb1f88756" config-ref="HTTP_Request_configuration" path="${http.path7}" responseTimeout="300000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"correlationid" : vars.correlationid
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"" : ""
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Converting payload into json and printing a message as Doctor record updated successfully." doc:id="c17e0781-57d8-4561-8d29-b844d728a219" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message":"Doctor record updated successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="fff544a5-95cb-4bad-ac06-1f393ac254d5" message='#["Update Doctor record flow ended in exp layer impl ::" ++ vars.correlationid]'/>
+	</sub-flow>
+	<sub-flow name="Validate-Patient" doc:id="7ada9997-c896-4d7c-ab00-7bb7dfe6bc06" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="87f0d892-0b62-46bf-bf55-f5d932b14978" message='#["Validating  Patient details  Object flow started in exp layer impl ::" ++ vars.correlationid]'/>
+		<http:request method="POST" doc:name="This Request Connector is used to call post:\pats present in hospital-manage-prcapi-config." doc:id="13412072-13ad-4594-bfec-0eb61ddeff3c" config-ref="HTTP_Request_configuration" path="${http.path1}" responseTimeout="300000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"correlationid" : vars.correlationid
+}]]]></http:headers>
+		</http:request>
+		<ee:transform doc:name="Converting th payload into json format and inserting or updating record the accordingly." doc:id="bd55e0f2-b5e1-4024-b0b8-2c8ccd51a592" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="45675e73-319c-48b0-b8a0-7b6acf6e5daa" message='#["Validating  Patient details  Object flow ended in exp layer impl ::" ++ vars.correlationid]'/>
+	</sub-flow>
+	<sub-flow name="Delete-Patient-By-ID" doc:id="b4f12c84-fa7d-43c7-843b-78ee69186d73" >
+		<logger level="INFO" doc:name="Start Logger" doc:id="026c0aa9-5332-4b7e-9d02-7f22297729cc" message='#["Delete patient record by ID flow started in exp layer impl ::" ++ vars.correlationid]'/>
+		<http:request method="DELETE" doc:name="This Request Connector is used to call delete:\pats\(id) present in hospital-manage-prcapi-config." doc:id="0e323f89-7666-4bc4-af32-eb770bd82df3" config-ref="HTTP_Request_configuration" path="${http.path2}" responseTimeout="300000">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"correlationid" : correlationid
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"id" : attributes.uriParams.id
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Converting payload into json and printing a message as Patient record deleted successfully." doc:id="172b48ca-503c-433c-9bb6-f8a1c67fb873" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Message" : " Patient Record Deleted Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="3a6497fe-5deb-4434-af73-5641cfbd2e0f" message='#["Delete patient record by ID flow ended in exp layer impl ::" ++ vars.correlationid]'/>
+	</sub-flow>
+</mule>
